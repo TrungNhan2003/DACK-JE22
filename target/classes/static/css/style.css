@@ -1,0 +1,117 @@
+/* Custom styles for Fashion Shop */
+
+:root {
+    --primary-color: #e91e63;
+    --secondary-color: #9c27b0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    border-radius: 10px;
+    border: none;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #c2185b;
+    border-color: #c2185b;
+}
+
+.btn-success {
+    background-color: #4caf50;
+    border-color: #4caf50;
+}
+
+.btn-success:hover {
+    background-color: #43a047;
+    border-color: #43a047;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+/* Product card styles */
+.product-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.product-image {
+    height: 250px;
+    object-fit: cover;
+}
+
+/* Cart styles */
+.cart-item {
+    border-bottom: 1px solid #dee2e6;
+    padding: 15px 0;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(233, 30, 99, 0.25);
+}
+
+/* Badge styles */
+.badge {
+    padding: 0.5em 0.8em;
+    font-size: 0.85em;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 8px;
+}
+
+/* Table styles */
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+/* Dropdown */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.dropdown-item:hover {
+    background-color: var(--primary-color);
+    color: white;
+}

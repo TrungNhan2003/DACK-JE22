@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Đặt hàng thành công - Fashion Shop</title>
+</head>
+<body>
+    <div layout:fragment="content" class="text-center py-5">
+        <div class="card shadow-sm d-inline-block" style="max-width: 600px;">
+            <div class="card-body p-5">
+                <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                <h1 class="mt-3 text-success">Đặt hàng thành công!</h1>
+                <p class="lead text-muted mb-4">
+                    Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đang được xử lý.
+                </p>
+
+                <div class="card bg-light mb-4" th:if="${order != null}">
+                    <div class="card-body text-start">
+                        <h5 class="card-title mb-3">Thông tin đơn hàng</h5>
+                        <table class="table table-borderless mb-0">
+                            <tr>
+                                <th width="40%">Mã đơn hàng:</th>
+                                <td class="fw-bold" th:text="'#' + ${order.id}">#1</td>
+                            </tr>
+                            <tr>
+                                <th>Tổng tiền:</th>
+                                <td class="text-danger fw-bold"
+                                    th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                    0 ₫
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Trạng thái:</th>
+                                <td>
+                                    <span class="badge bg-warning" th:text="'Chờ xử lý'">Pending</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Phương thức thanh toán:</th>
+                                <td>
+                                    <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'COD'}">
+                                        Thanh toán khi nhận hàng (COD)
+                                    </span>
+                                    <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'BANK_TRANSFER'}">
+                                        Chuyển khoản ngân hàng
+                                    </span>
+                                    <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'MOMO'}">
+                                        Ví MoMo
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Hướng dẫn thanh toán cho BANK_TRANSFER và MOMO -->
+                <div class="alert alert-warning text-start" th:if="${order != null and order.paymentMethod != null and order.paymentMethod.name == 'BANK_TRANSFER'}">
+                    <h6 class="mb-2"><i class="fas fa-university"></i> Hướng dẫn chuyển khoản ngân hàng</h6>
+                    <ul class="mb-0 small">
+                        <li><strong>Ngân hàng:</strong> (bạn điền tên ngân hàng của bạn)</li>
+                        <li><strong>Số tài khoản:</strong> (bạn điền số tài khoản của bạn)</li>
+                        <li><strong>Chủ tài khoản:</strong> (bạn điền tên chủ tài khoản)</li>
+                        <li><strong>Nội dung chuyển khoản:</strong> <span th:text="'Thanh toan don hang #' + ${order.id}">Thanh toan don hang #1</span></li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-warning text-start" th:if="${order != null and order.paymentMethod != null and order.paymentMethod.name == 'MOMO'}">
+                    <h6 class="mb-2"><i class="fas fa-wallet"></i> Hướng dẫn thanh toán qua MoMo</h6>
+                    <ul class="mb-0 small">
+                        <li>Mở ứng dụng MoMo trên điện thoại của bạn.</li>
+                        <li>Chọn <strong>Chuyển tiền</strong> và nhập số điện thoại MoMo nhận: <strong>(bạn điền số MoMo của bạn)</strong>.</li>
+                        <li>Số tiền: <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>.</li>
+                        <li>Nội dung: <span th:text="'Thanh toan don hang #' + ${order.id}">Thanh toan don hang #1</span>.</li>
+                    </ul>
+                </div>
+
+                <div class="alert alert-info text-start" th:if="${order != null}">
+                    <h6><i class="fas fa-info-circle"></i> Thông tin giao hàng:</h6>
+                    <ul class="mb-0">
+                        <li><strong>Người nhận:</strong> <span th:text="${order.fullName}">Name</span></li>
+                        <li><strong>Số điện thoại:</strong> <span th:text="${order.phone}">Phone</span></li>
+                        <li><strong>Địa chỉ:</strong> <span th:text="${order.address}">Address</span></li>
+                    </ul>
+                </div>
+
+                <div class="mt-4">
+                    <a th:href="@{/order-history}" class="btn btn-primary me-2">
+                        <i class="fas fa-box"></i> Xem đơn hàng của tôi
+                    </a>
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home"></i> Về trang chủ
+                    </a>
+                </div>
+
+                <p class="text-muted small mt-4 mb-0">
+                    <i class="fas fa-phone"></i> Cần hỗ trợ? Liên hệ: 1900 xxxx
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <title th:text="${productDTO.id != null} ? 'Sửa sản phẩm' : 'Thêm sản phẩm'">Product Form</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="mb-4">
+            <a th:href="@{/admin/products}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+            <h2 class="d-inline ms-3" th:text="${productDTO.id != null} ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'">
+                Title
+            </h2>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <form th:action="${productDTO.id != null} ? @{/admin/products/update/{id}(id=${productDTO.id})} : @{/admin/products/add}" 
+                              method="post" 
+                              th:object="${productDTO}"
+                              enctype="multipart/form-data">
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="name" th:field="*{name}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Mô tả</label>
+                                <textarea class="form-control" id="description" rows="4" th:field="*{description}"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="price" class="form-label">Giá gốc <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="price" th:field="*{price}" min="0" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="discountPrice" class="form-label">Giá giảm (nếu có)</label>
+                                    <input type="number" class="form-control" id="discountPrice" th:field="*{discountPrice}" min="0">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="stock" class="form-label">Tồn kho <span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="stock" th:field="*{stock}" min="0" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="categoryId" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                    <select class="form-select" id="categoryId" th:field="*{categoryId}" required>
+                                        <option value="">-- Chọn danh mục --</option>
+                                        <option th:each="cat : ${categories}" 
+                                                th:value="${cat.id}" 
+                                                th:text="${cat.name}">Category</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Ảnh sản phẩm</label>
+                                <input type="file" class="form-control" id="image" name="imageFile" accept="image/*">
+                                <div th:if="${productDTO.image != null}" class="mt-2">
+                                    <img th:src="${productDTO.image}" alt="Current image" style="max-height: 150px;" class="rounded">
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> <span th:text="${productDTO.id != null} ? 'Cập nhật' : 'Thêm mới'">Save</span>
+                                </button>
+                                <a th:href="@{/admin/products}" class="btn btn-outline-secondary">Hủy</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Hướng dẫn</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Điền đầy đủ thông tin có dấu <span class="text-danger">*</span></li>
+                            <li>Giá giảm phải nhỏ hơn giá gốc</li>
+                            <li>Ảnh sản phẩm nên có kích thước vuông (500x500px)</li>
+                            <li>Dung lượng ảnh tối đa: 5MB</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

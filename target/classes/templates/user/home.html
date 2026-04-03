@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Trang chủ - Fashion Shop</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Banner -->
+        <div class="banner mb-5">
+            <div class="card bg-primary text-white shadow-lg overflow-hidden">
+                <div class="card-body p-5 text-center">
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i class="fas fa-tshirt"></i> Fashion Shop
+                    </h1>
+                    <p class="lead mb-4">Khám phá xu hướng thời trang mới nhất 2026</p>
+                    <a th:href="@{/products}" class="btn btn-light btn-lg">
+                        <i class="fas fa-shopping-bag"></i> Mua sắm ngay
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Featured Products -->
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0">
+                    <i class="fas fa-fire text-danger"></i> Sản phẩm nổi bật
+                </h3>
+                <a th:href="@{/products}" class="btn btn-outline-primary">
+                    Xem tất cả <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" 
+                 th:if="${products != null && !products.empty}">
+                <div class="col" th:each="product : ${products}">
+                    <div class="card product-card h-100 shadow-sm">
+                        <div class="position-relative">
+                            <img th:src="${product.imageUrl}" 
+                                 th:alt="${product.name}"
+                                 class="card-img-top product-image"
+                                     >
+                            
+                            <span th:if="${product.salePrice != null}" 
+                                  class="badge bg-danger position-absolute top-0 end-0 m-2">
+                                Giảm giá
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <a th:href="@{/products/{slug}(slug=${product.slug})}" 
+                                   class="text-decoration-none text-dark"
+                                   th:text="${product.name}">Product Name</a>
+                            </h6>
+                            <p class="card-text text-muted small" 
+                               th:text="${product.category?.name}">Category</p>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span th:if="${product.salePrice != null}" 
+                                          class="text-danger fw-bold"
+                                          th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        0 ₫
+                                    </span>
+                                    <span th:if="${product.salePrice != null}" 
+                                          class="text-muted text-decoration-line-through ms-1 small"
+                                          th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        0 ₫
+                                    </span>
+                                    <span th:unless="${product.salePrice != null}" 
+                                          class="text-primary fw-bold"
+                                          th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        0 ₫
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post" class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${products == null || products.empty}" class="text-center py-5">
+                <p class="text-muted">Chưa có sản phẩm nào.</p>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="mb-5">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-truck fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Giao hàng miễn phí</h5>
+                            <p class="card-text text-muted">Cho đơn hàng từ 500.000₫</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-undo fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Đổi trả dễ dàng</h5>
+                            <p class="card-text text-muted">Trong vòng 7 ngày</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Thanh toán an toàn</h5>
+                            <p class="card-text text-muted">Bảo mật 100%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Hỗ trợ 24/7</h5>
+                            <p class="card-text text-muted">Tư vấn nhiệt tình</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

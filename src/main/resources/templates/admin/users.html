@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <title>Quản lý người dùng - Admin</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-users"></i> Quản lý người dùng</h2>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>SĐT</th>
+                                <th>Vai trò</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}">
+                                <td th:text="${user.id}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                             style="width: 40px; height: 40px;">
+                                            <span th:text="${#strings.toUpperCase(#strings.substring(user.fullName, 0, 1))}">A</span>
+                                        </div>
+                                        <span th:text="${user.fullName}">Name</span>
+                                    </div>
+                                </td>
+                                <td th:text="${user.email}">email@example.com</td>
+                                <td th:text="${user.phone ?: '-'}">Phone</td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.role.name == 'ROLE_ADMIN'} ? 'bg-danger' : 'bg-info'"
+                                          th:text="${user.role.name == 'ROLE_ADMIN'} ? 'Admin' : 'User'">
+                                        Role
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.enabled} ? 'bg-success' : 'bg-secondary'"
+                                          th:text="${user.enabled} ? 'Hoạt động' : 'Bị khóa'">
+                                        Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/admin/users/toggle/{id}(id=${user.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm"
+                                                th:classappend="${user.enabled} ? 'btn-warning' : 'btn-success'"
+                                                th:text="${user.enabled} ? 'Khóa' : 'Mở khóa'">
+                                            Action
+                                        </button>
+                                    </form>
+                                    <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

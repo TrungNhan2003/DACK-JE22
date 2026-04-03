@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Đăng ký - Fashion Shop</title>
+</head>
+<body>
+    <div layout:fragment="content" class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0 text-center">
+                        <i class="fas fa-user-plus"></i> Đăng ký tài khoản
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/register}" method="post" th:object="${registerDTO}">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">
+                                <i class="fas fa-user"></i> Họ và tên
+                            </label>
+                            <input type="text" class="form-control" id="fullName" 
+                                   th:field="*{fullName}" placeholder="Nhập họ và tên">
+                            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" 
+                                 th:errors="*{fullName}"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope"></i> Email
+                            </label>
+                            <input type="email" class="form-control" id="email" 
+                                   th:field="*{email}" placeholder="Nhập email">
+                            <div class="text-danger" th:if="${#fields.hasErrors('email')}" 
+                                 th:errors="*{email}"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock"></i> Mật khẩu
+                            </label>
+                            <input type="password" class="form-control" id="password" 
+                                   th:field="*{password}" placeholder="Nhập mật khẩu (ít nhất 6 ký tự)">
+                            <div class="text-danger" th:if="${#fields.hasErrors('password')}" 
+                                 th:errors="*{password}"></div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">
+                                <i class="fas fa-phone"></i> Số điện thoại
+                            </label>
+                            <input type="tel" class="form-control" id="phone" 
+                                   th:field="*{phone}" placeholder="Nhập số điện thoại">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="address" class="form-label">
+                                <i class="fas fa-map-marker-alt"></i> Địa chỉ
+                            </label>
+                            <textarea class="form-control" id="address" rows="2"
+                                      th:field="*{address}" placeholder="Nhập địa chỉ"></textarea>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-user-plus"></i> Đăng ký
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    <p class="text-center mb-0">
+                        Đã có tài khoản? 
+                        <a th:href="@{/login}">Đăng nhập ngay</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

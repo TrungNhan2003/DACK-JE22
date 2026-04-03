@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <title>Quản lý sản phẩm - Admin</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0"><i class="fas fa-box"></i> Quản lý sản phẩm</h2>
+            <a th:href="@{/admin/products/add}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Thêm mới
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Giá giảm</th>
+                                <th>Tồn kho</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="product : ${products}">
+                                <td>
+                                    <img th:src="${product.imageUrl}" 
+                                         th:alt="${product.name}"
+                                         style="width: 60px; height: 60px; object-fit: cover;"
+                                         class="rounded">
+                                </td>
+                                <td>
+                                    <strong th:text="${product.name}">Product Name</strong>
+                                </td>
+                                <td th:text="${product.category?.name ?: '-'}">Category</td>
+                                <td>
+                                    <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                                </td>
+                                <td>
+                                    <span th:if="${product.salePrice != null}" 
+                                          class="text-danger fw-bold"
+                                          th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        0 ₫
+                                    </span>
+                                    <span th:unless="${product.salePrice != null}">-</span>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${product.stock > 10} ? 'bg-success' : (${product.stock > 0} ? 'bg-warning' : 'bg-danger')"
+                                          th:text="${product.stock}">0</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" 
+                                       class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" 
+                                          method="post" class="d-inline"
+                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i> Xóa
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

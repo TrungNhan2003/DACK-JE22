@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Sản phẩm - Fashion Shop</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2 class="mb-4"><i class="fas fa-tshirt"></i> Tất cả sản phẩm</h2>
+
+        <div class="row">
+            <!-- Sidebar Filters -->
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-filter"></i> Bộ lọc</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Search -->
+                        <form th:action="@{/search}" method="get" class="mb-4">
+                            <label class="form-label fw-bold">Tìm kiếm</label>
+                            <div class="input-group">
+                                <input type="text" name="keyword" class="form-control" 
+                                       th:value="${keyword}" placeholder="Tên sản phẩm...">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Category Filter -->
+                        <form th:action="@{/products}" method="get">
+                            <label class="form-label fw-bold">Danh mục</label>
+                            <div class="list-group">
+                                <a th:href="@{/products}" 
+                                   th:classappend="${currentCategory == null} ? 'active' : ''"
+                                   class="list-group-item list-group-item-action">
+                                    <i class="fas fa-th-large"></i> Tất cả
+                                </a>
+                                <a th:each="cat : ${categories}"
+                                   th:href="@{/products(category=${cat.id})}"
+                                   th:classappend="${currentCategory == cat.id} ? 'active' : ''"
+                                   class="list-group-item list-group-item-action">
+                                    <i class="fas fa-tag"></i>
+                                    <span th:text="${cat.name}">Category</span>
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9">
+                <div th:if="${products != null && !products.empty}">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        <div class="col" th:each="product : ${products}">
+                            <div class="card product-card h-100 shadow-sm">
+                                <div class="position-relative">
+                                    <img th:src="${product.imageUrl}" 
+                                         th:alt="${product.name}"
+                                         class="card-img-top product-image"
+                                         >
+                                    
+                                    <span th:if="${product.salePrice != null}" 
+                                          class="badge bg-danger position-absolute top-0 end-0 m-2">
+                                        -<span th:text="${#numbers.formatDecimal((product.price - product.salePrice) / product.price * 100, 0, 'DEFAULT', 0, 'DEFAULT')}">%</span>
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <a th:href="@{/products/{slug}(slug=${product.slug})}" 
+                                           class="text-decoration-none text-dark"
+                                           th:text="${product.name}">Product Name</a>
+                                    </h6>
+                                    <p class="card-text text-muted small" 
+                                       th:text="${product.category?.name}">Category</p>
+                                    <div class="mb-2">
+                                        <span th:if="${product.salePrice != null}" 
+                                              class="text-danger fw-bold"
+                                              th:text="${#numbers.formatDecimal(product.salePrice, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            0 ₫
+                                        </span>
+                                        <span th:if="${product.salePrice != null}" 
+                                              class="text-muted text-decoration-line-through ms-1 small"
+                                              th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            0 ₫
+                                        </span>
+                                        <span th:unless="${product.salePrice != null}" 
+                                              class="text-primary fw-bold"
+                                              th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            0 ₫
+                                        </span>
+                                    </div>
+                                    <div class="d-grid">
+                                        <form th:action="@{/cart/add/{id}(id=${product.id})}" method="post">
+                                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                                <i class="fas fa-cart-plus"></i> Thêm vào giỏ
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav class="mt-4" th:if="${paging.totalPages > 1}">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${paging.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/products(page=0, category=${currentCategory})}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item" th:classappend="${!paging.hasPrevious} ? 'disabled'">
+                                <a class="page-link" 
+                                   th:href="@{/products(page=${paging.number - 1}, category=${currentCategory})}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                            
+                            <li class="page-item" 
+                                th:each="i : ${#numbers.sequence(0, paging.totalPages - 1)}"
+                                th:classappend="${paging.number == i} ? 'active'">
+                                <a class="page-link" 
+                                   th:href="@{/products(page=${i}, category=${currentCategory})}"
+                                   th:text="${i + 1}">1</a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${!paging.hasNext} ? 'disabled'">
+                                <a class="page-link" 
+                                   th:href="@{/products(page=${paging.number + 1}, category=${currentCategory})}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item" th:classappend="${paging.last} ? 'disabled'">
+                                <a class="page-link" 
+                                   th:href="@{/products(page=${paging.totalPages - 1}, category=${currentCategory})}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                <div th:if="${products == null || products.empty}" class="text-center py-5">
+                    <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
+                    <h4>Không tìm thấy sản phẩm nào</h4>
+                    <p class="text-muted">Thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác.</p>
+                    <a th:href="@{/products}" class="btn btn-primary">
+                        <i class="fas fa-redo"></i> Xem tất cả sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

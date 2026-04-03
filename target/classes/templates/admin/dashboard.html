@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <title>Dashboard - Admin</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <h2 class="mb-4"><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-1">Đơn hôm nay</h6>
+                                <h3 class="mb-0" th:text="${todayOrders}">0</h3>
+                            </div>
+                            <i class="fas fa-shopping-bag fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-1">Doanh thu tháng</h6>
+                                <h3 class="mb-0" th:text="${#numbers.formatDecimal(revenueThisMonth, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</h3>
+                            </div>
+                            <i class="fas fa-dollar-sign fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-1">Sản phẩm</h6>
+                                <h3 class="mb-0" th:text="${totalProducts}">0</h3>
+                            </div>
+                            <i class="fas fa-box fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title mb-1">Người dùng</h6>
+                                <h3 class="mb-0" th:text="${totalUsers}">0</h3>
+                            </div>
+                            <i class="fas fa-users fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Đơn hàng gần đây</h5>
+                        <a th:href="@{/admin/orders}" class="btn btn-sm btn-primary">Xem tất cả</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="order : ${recentOrders}">
+                                        <td th:text="'#' + ${order.id}">#1</td>
+                                        <td th:text="${order.fullName}">Name</td>
+                                        <td class="text-danger fw-bold"
+                                            th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                                        <td>
+                                            <span class="badge"
+                                                  th:classappend="${order.status.name == 'DONE'} ? 'bg-success' : 
+                                                                   (${order.status.name == 'CANCELLED'} ? 'bg-danger' : 
+                                                                   (${order.status.name == 'PENDING'} ? 'bg-warning' : 
+                                                                   (${order.status.name == 'CONFIRMED'} ? 'bg-info' : 'bg-primary')))"
+                                                  th:text="${order.status.name}">Status</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Sản phẩm sắp hết hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center" 
+                                th:each="product : ${lowStockProducts}">
+                                <span th:text="${product.name}">Product</span>
+                                <span class="badge bg-danger rounded-pill" th:text="${product.stock}">0</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
