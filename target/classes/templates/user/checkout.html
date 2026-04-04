@@ -90,9 +90,28 @@
                                     </tbody>
                                     <tfoot>
                                         <tr>
-                                            <td colspan="2" class="fw-bold">Tổng cộng:</td>
-                                            <td class="text-end text-danger fw-bold"
+                                            <td colspan="2" class="fw-bold">Tạm tính:</td>
+                                            <td id="checkout-subtotal-display" class="text-end fw-bold"
                                                 th:text="${#numbers.formatDecimal(cartTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                                0 ₫
+                                            </td>
+                                        </tr>
+                                        <tr id="checkout-discount-row"
+                                            th:classappend="${voucherDiscount == null} ? 'd-none' : ''">
+                                            <td colspan="2" class="text-success">
+                                                <i class="fas fa-tag"></i> Giảm giá voucher
+                                                <span class="small text-muted d-block" th:if="*{voucherCode != null and !#strings.isEmpty(voucherCode)}"
+                                                      th:text="'(mã: ' + *{voucherCode} + ')'">(mã)</span>
+                                            </td>
+                                            <td id="checkout-discount-amount" class="text-end text-success fw-bold"
+                                                th:text="${voucherDiscount != null} ? ('-' + ${#numbers.formatDecimal(voucherDiscount, 0, 'COMMA', 0, 'POINT')} + ' ₫') : ''">
+                                                0 ₫
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" class="fw-bold">Thanh toán:</td>
+                                            <td id="checkout-final-display" class="text-end text-danger fw-bold"
+                                                th:text="${#numbers.formatDecimal(finalTotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                                                 0 ₫
                                             </td>
                                         </tr>
@@ -100,26 +119,38 @@
                                 </table>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="voucherCode" class="form-label fw-bold">
+                                    <i class="fas fa-ticket-alt"></i> Mã giảm giá
+                                </label>
+                                <input type="text" class="form-control" id="voucherCode" th:field="*{voucherCode}"
+                                       placeholder="Nhập mã (nếu có)" autocomplete="off">
+                                <div id="checkout-voucher-msg" class="small text-danger mt-1"></div>
+                                <div class="form-text">Mã do cửa hàng cấp. Nhập xong vài giây sẽ tự cập nhật số tiền thanh toán.</div>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('voucherCode')}"
+                                     th:errors="*{voucherCode}"></div>
+                            </div>
+
                             <hr>
 
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Phương thức thanh toán:</label>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
-                                           id="cod" value="COD" checked>
+                                    <input class="form-check-input" type="radio" th:field="*{paymentMethod}"
+                                           id="cod" value="COD">
                                     <label class="form-check-label" for="cod">
                                         <i class="fas fa-money-bill-wave"></i> Thanh toán khi nhận hàng (COD)
                                     </label>
                                 </div>
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
+                                    <input class="form-check-input" type="radio" th:field="*{paymentMethod}"
                                            id="bank" value="BANK_TRANSFER">
                                     <label class="form-check-label" for="bank">
                                         <i class="fas fa-university"></i> Chuyển khoản ngân hàng
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="paymentMethod" 
+                                    <input class="form-check-input" type="radio" th:field="*{paymentMethod}"
                                            id="momo" value="MOMO">
                                     <label class="form-check-label" for="momo">
                                         <i class="fas fa-wallet"></i> Ví điện tử MoMo
@@ -139,6 +170,65 @@
                 </div>
             </div>
         </form>
+
+        <script th:inline="javascript">
+            (function () {
+                const subtotal = /*[[${cartTotal}]]*/ 0;
+                const previewUrl = /*[[@{/checkout/api/voucher-preview}]]*/ '/checkout/api/voucher-preview';
+                const input = document.getElementById('voucherCode');
+                const row = document.getElementById('checkout-discount-row');
+                const discCell = document.getElementById('checkout-discount-amount');
+                const finalCell = document.getElementById('checkout-final-display');
+                const msg = document.getElementById('checkout-voucher-msg');
+
+                function fmtVnd(n) {
+                    if (n == null || isNaN(Number(n))) return '';
+                    return new Intl.NumberFormat('vi-VN').format(Math.round(Number(n))) + ' ₫';
+                }
+
+                let timer;
+                function schedulePreview() {
+                    clearTimeout(timer);
+                    timer = setTimeout(runPreview, 420);
+                }
+
+                async function runPreview() {
+                    if (!input || !finalCell) return;
+                    if (msg) msg.textContent = '';
+                    const code = input.value.trim();
+                    if (!code) {
+                        if (row) row.classList.add('d-none');
+                        finalCell.textContent = fmtVnd(subtotal);
+                        return;
+                    }
+                    try {
+                        const r = await fetch(previewUrl + '?code=' + encodeURIComponent(code), {credentials: 'same-origin'});
+                        if (!r.ok) return;
+                        const data = await r.json();
+                        if (!data.valid) {
+                            if (row) row.classList.add('d-none');
+                            finalCell.textContent = fmtVnd(subtotal);
+                            if (msg) msg.textContent = data.message || 'Mã không hợp lệ';
+                            return;
+                        }
+                        const disc = data.discountAmount != null ? Number(data.discountAmount) : 0;
+                        if (disc > 0 && row && discCell) {
+                            row.classList.remove('d-none');
+                            discCell.textContent = '-' + fmtVnd(disc);
+                        } else if (row) {
+                            row.classList.add('d-none');
+                        }
+                        const fin = data.finalTotal != null ? Number(data.finalTotal) : subtotal;
+                        finalCell.textContent = fmtVnd(fin);
+                    } catch (e) { /* ignore */ }
+                }
+
+                if (input) {
+                    input.addEventListener('input', schedulePreview);
+                    input.addEventListener('change', schedulePreview);
+                }
+            })();
+        </script>
     </div>
 </body>
 </html>

@@ -1,0 +1,44 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="widget">
+    <!-- Shopee-style floating chat (user đã đăng nhập, không phải admin) -->
+    <div id="fs-chat-root" class="fs-chat-root" aria-hidden="true"
+         th:attr="data-poll-url=@{/chat/api/messages},data-send-url=@{/chat/send}">
+        <button type="button" id="fs-chat-fab" class="fs-chat-fab" aria-label="Mở chat với cửa hàng" title="Chat với cửa hàng" aria-expanded="false">
+            <i class="fas fa-comment-dots"></i>
+        </button>
+
+        <div id="fs-chat-panel" class="fs-chat-panel" role="dialog" aria-labelledby="fs-chat-panel-title" hidden>
+            <div class="fs-chat-panel__header">
+                <div class="fs-chat-panel__title-wrap">
+                    <span class="fs-chat-panel__shop-avatar" aria-hidden="true">
+                        <i class="fas fa-tshirt"></i>
+                    </span>
+                    <div>
+                        <div id="fs-chat-panel-title" class="fs-chat-panel__title">Fashion Shop</div>
+                        <div class="fs-chat-panel__subtitle">Thường phản hồi trong vài phút</div>
+                    </div>
+                </div>
+                <div class="fs-chat-panel__header-actions">
+                    <a th:href="@{/chat}" class="fs-chat-panel__icon-btn" title="Mở rộng" aria-label="Mở trang chat đầy đủ">
+                        <i class="fas fa-expand-alt"></i>
+                    </a>
+                    <button type="button" id="fs-chat-minimize" class="fs-chat-panel__icon-btn" title="Thu nhỏ" aria-label="Thu nhỏ chat">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="fs-chat-messages" class="fs-chat-panel__body" aria-live="polite"></div>
+
+            <div class="fs-chat-panel__footer">
+                <div class="fs-chat-panel__input-wrap">
+                    <textarea id="fs-chat-input" class="fs-chat-panel__input" rows="1" maxlength="2000"
+                              placeholder="Nhập tin nhắn..."></textarea>
+                    <button type="button" id="fs-chat-send" class="fs-chat-panel__send" aria-label="Gửi tin nhắn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="fs-chat-panel__hint small text-muted mb-0 mt-1">Enter gửi · Shift+Enter xuống dòng</p>
+            </div>
+        </div>
+    </div>
+</th:block>

@@ -19,10 +19,9 @@
         </div>
 
         <div th:if="${orders != null && !orders.empty}" class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Mã đơn</th>
                         <th>Ngày đặt</th>
                         <th>Tổng tiền</th>
                         <th>Trạng thái</th>
@@ -32,55 +31,52 @@
                 </thead>
                 <tbody>
                     <tr th:each="order : ${orders}">
-                        <td>
-                            <a th:href="@{/order-history/{id}(id=${order.id})}" 
-                               class="text-decoration-none fw-bold"
-                               th:text="'#' + ${order.id}">
-                                #1
-                            </a>
-                        </td>
                         <td th:text="${#temporals.format(order.createdAt, 'dd/MM/yyyy HH:mm')}">
                             01/01/2026 10:00
                         </td>
+
                         <td class="fw-bold text-danger"
                             th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                             0 ₫
                         </td>
+
                         <td>
-                            <span class="badge bg-warning"
-                                  th:if="${order.status != null and order.status.name == 'PENDING'}">
+                            <span class="badge bg-warning text-dark"
+                                  th:if="${order.status != null and order.status.name() == 'PENDING'}">
                                 Chờ xử lý
                             </span>
-                            <span class="badge bg-info"
-                                  th:if="${order.status != null and order.status.name == 'CONFIRMED'}">
+                            <span class="badge bg-info text-dark"
+                                  th:if="${order.status != null and order.status.name() == 'CONFIRMED'}">
                                 Đã xác nhận
                             </span>
                             <span class="badge bg-primary"
-                                  th:if="${order.status != null and order.status.name == 'SHIPPING'}">
+                                  th:if="${order.status != null and order.status.name() == 'SHIPPING'}">
                                 Đang giao
                             </span>
                             <span class="badge bg-success"
-                                  th:if="${order.status != null and order.status.name == 'DONE'}">
+                                  th:if="${order.status != null and order.status.name() == 'DONE'}">
                                 Hoàn thành
                             </span>
                             <span class="badge bg-danger"
-                                  th:if="${order.status != null and order.status.name == 'CANCELLED'}">
+                                  th:if="${order.status != null and order.status.name() == 'CANCELLED'}">
                                 Đã hủy
                             </span>
                         </td>
+
                         <td>
-                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'COD'}">
+                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name() == 'COD'}">
                                 Thanh toán khi nhận hàng
                             </span>
-                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'BANK_TRANSFER'}">
+                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name() == 'BANK_TRANSFER'}">
                                 Chuyển khoản
                             </span>
-                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'MOMO'}">
+                            <span th:if="${order.paymentMethod != null and order.paymentMethod.name() == 'MOMO'}">
                                 MoMo
                             </span>
                         </td>
+
                         <td>
-                            <a th:href="@{/order-history/{id}(id=${order.id})}" 
+                            <a th:href="@{/order-history/{id}(id=${order.id})}"
                                class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-eye"></i> Chi tiết
                             </a>

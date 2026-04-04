@@ -19,5 +19,8 @@ public class CheckoutDTO {
 
     private String paymentMethod = "COD";
 
+    /** Mã giảm giá (tùy chọn), ví dụ: sale4.4 */
+    private String voucherCode;
+
     private String note;
 }

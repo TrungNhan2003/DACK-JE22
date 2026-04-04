@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin}">
+<head>
+    <title>Chat khách hàng - Admin</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <h2 class="mb-4"><i class="fas fa-comments"></i> Chat khách hàng</h2>
+
+    <div th:if="${conversations == null || conversations.isEmpty()}" class="alert alert-info">
+        Chưa có cuộc trò chuyện nào. Khi khách vào trang Chat và gửi tin, cuộc trò chuyện sẽ xuất hiện ở đây.
+    </div>
+
+    <div th:if="${conversations != null && !conversations.isEmpty()}" class="table-responsive card shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+            <tr>
+                <th>Khách hàng</th>
+                <th>Email</th>
+                <th>Tin nhắn cuối</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${conversations}">
+                <td th:text="${c.userName}">Name</td>
+                <td th:text="${c.userEmail}">email</td>
+                <td>
+                    <small class="text-muted"
+                           th:text="${c.lastMessageAt != null ? #temporals.format(c.lastMessageAt, 'dd/MM/yyyy HH:mm') : '-'}">-</small>
+                </td>
+                <td class="text-end">
+                    <a th:href="@{/admin/chat/{id}(id=${c.id})}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-comment-dots"></i> Mở chat
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

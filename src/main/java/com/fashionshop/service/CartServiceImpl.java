@@ -5,6 +5,7 @@ import com.fashionshop.entity.Product;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,9 @@ public class CartServiceImpl implements CartService {
 
     @SuppressWarnings("unchecked")
     private ConcurrentHashMap<Long, CartItem> getCartMap() {
-        ConcurrentHashMap<Long, CartItem> cartMap = (ConcurrentHashMap<Long, CartItem>) session.getAttribute("cart");
+        ConcurrentHashMap<Long, CartItem> cartMap =
+                (ConcurrentHashMap<Long, CartItem>) session.getAttribute("cart");
+
         if (cartMap == null) {
             cartMap = new ConcurrentHashMap<>();
             session.setAttribute("cart", cartMap);
@@ -47,12 +50,33 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public void addToCart(Product product, Integer quantity) {
+        if (product == null) {
+            throw new IllegalArgumentException("Sản phẩm không tồn tại");
+        }
+
+        if (quantity == null || quantity <= 0) {
+            quantity = 1;
+        }
+
+        int stock = product.getStock() != null ? product.getStock() : 0;
+        if (stock <= 0) {
+            throw new IllegalArgumentException("Sản phẩm đã hết hàng");
+        }
+
         ConcurrentHashMap<Long, CartItem> cartMap = getCartMap();
         CartItem item = cartMap.get(product.getId());
 
         if (item != null) {
-            item.setQuantity(item.getQuantity() + quantity);
+            int newQuantity = item.getQuantity() + quantity;
+            if (newQuantity > stock) {
+                throw new IllegalArgumentException("Số lượng vượt quá tồn kho. Hiện chỉ còn " + stock + " sản phẩm.");
+            }
+            item.setQuantity(newQuantity);
         } else {
+            if (quantity > stock) {
+                throw new IllegalArgumentException("Số lượng vượt quá tồn kho. Hiện chỉ còn " + stock + " sản phẩm.");
+            }
+
             BigDecimal price = product.getSalePrice() != null ? product.getSalePrice() : product.getPrice();
             item = CartItem.builder()
                     .product(product)
@@ -61,20 +85,38 @@ public class CartServiceImpl implements CartService {
                     .build();
             cartMap.put(product.getId(), item);
         }
+
         session.setAttribute("cart", cartMap);
     }
 
     @Override
     public void updateCartItem(Long productId, Integer quantity) {
         ConcurrentHashMap<Long, CartItem> cartMap = getCartMap();
-        if (quantity <= 0) {
+
+        if (quantity == null || quantity <= 0) {
             cartMap.remove(productId);
-        } else {
-            CartItem item = cartMap.get(productId);
-            if (item != null) {
-                item.setQuantity(quantity);
-            }
+            session.setAttribute("cart", cartMap);
+            return;
         }
+
+        CartItem item = cartMap.get(productId);
+        if (item != null) {
+            Product product = item.getProduct();
+            int stock = product.getStock() != null ? product.getStock() : 0;
+
+            if (stock <= 0) {
+                cartMap.remove(productId);
+                session.setAttribute("cart", cartMap);
+                throw new IllegalArgumentException("Sản phẩm đã hết hàng");
+            }
+
+            if (quantity > stock) {
+                throw new IllegalArgumentException("Số lượng vượt quá tồn kho. Hiện chỉ còn " + stock + " sản phẩm.");
+            }
+
+            item.setQuantity(quantity);
+        }
+
         session.setAttribute("cart", cartMap);
     }
 

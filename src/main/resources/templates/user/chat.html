@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Chat hỗ trợ - Fashion Shop</title>
+    <style>
+        /* Trang chat đầy đủ: ẩn widget nổi để không trùng hai khung */
+        .fs-chat-root { display: none !important; }
+    </style>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="fs-chat-page mx-auto" style="max-width: 640px;">
+        <p class="text-muted small mb-3">
+            Giao diện giống chat trên app mua sắm: bạn cũng có thể dùng nút tròn góc phải màn hình để chat nhanh trên mọi trang.
+        </p>
+
+        <div class="card shadow-sm overflow-hidden border-0">
+            <div class="fs-chat-panel__header rounded-0">
+                <div class="fs-chat-panel__title-wrap">
+                    <span class="fs-chat-panel__shop-avatar" aria-hidden="true">
+                        <i class="fas fa-tshirt"></i>
+                    </span>
+                    <div>
+                        <div class="fs-chat-panel__title">Fashion Shop</div>
+                        <div class="fs-chat-panel__subtitle">Chat hỗ trợ · Tin nhắn tự làm mới</div>
+                    </div>
+                </div>
+                <a th:href="@{/}" class="fs-chat-panel__icon-btn" title="Về trang chủ" aria-label="Về trang chủ">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+
+            <div id="chat-messages" class="fs-chat-panel__body" style="min-height: 360px; max-height: 50vh;" aria-live="polite"></div>
+
+            <form th:action="@{/chat/send}" method="post" class="fs-chat-panel__footer">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="fs-chat-panel__input-wrap">
+                    <textarea class="fs-chat-panel__input" id="content" name="content" rows="2"
+                              maxlength="2000" required placeholder="Nhập tin nhắn..."></textarea>
+                    <button type="submit" class="fs-chat-panel__send" aria-label="Gửi">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        (function () {
+            const pollUrl = /*[[@{/chat/api/messages}]]*/ '/chat/api/messages';
+            const box = document.getElementById('chat-messages');
+
+            function escapeHtml(s) {
+                if (s == null) return '';
+                const d = document.createElement('div');
+                d.textContent = s;
+                return d.innerHTML;
+            }
+
+            function render(msgs) {
+                if (!box) return;
+                let html = '';
+                for (let i = 0; i < msgs.length; i++) {
+                    const m = msgs[i];
+                    const mine = !m.fromAdmin;
+                    const who = mine ? 'Bạn' : 'Fashion Shop';
+                    html += '<div class="fs-chat-row ' + (mine ? 'fs-chat-row--me' : 'fs-chat-row--shop') + '">';
+                    if (!mine) {
+                        html += '<span class="fs-chat-avatar fs-chat-avatar--shop" aria-hidden="true"><i class="fas fa-tshirt"></i></span>';
+                    }
+                    html += '<div class="fs-chat-bubble-wrap">';
+                    html += '<div class="fs-chat-bubble ' + (mine ? 'fs-chat-bubble--me' : 'fs-chat-bubble--shop') + '">' + escapeHtml(m.content || '') + '</div>';
+                    html += '<div class="fs-chat-time">' + escapeHtml(who);
+                    if (m.createdAt) {
+                        html += ' · ' + escapeHtml(String(m.createdAt).replace('T', ' ').substring(0, 16));
+                    }
+                    html += '</div></div>';
+                    if (mine) {
+                        html += '<span class="fs-chat-avatar fs-chat-avatar--me" aria-hidden="true"><i class="fas fa-user"></i></span>';
+                    }
+                    html += '</div>';
+                }
+                if (msgs.length === 0) {
+                    html = '<p class="fs-chat-empty text-muted text-center mb-0 small">Chưa có tin nhắn. Hãy gửi câu hỏi đầu tiên.</p>';
+                }
+                box.innerHTML = html;
+                box.scrollTop = box.scrollHeight;
+            }
+
+            async function poll() {
+                try {
+                    const r = await fetch(pollUrl, {credentials: 'same-origin'});
+                    if (!r.ok) return;
+                    const data = await r.json();
+                    render(data);
+                } catch (e) { /* ignore */ }
+            }
+
+            poll();
+            setInterval(poll, 3500);
+        })();
+    </script>
+</div>
+</body>
+</html>

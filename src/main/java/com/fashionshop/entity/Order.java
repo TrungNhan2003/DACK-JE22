@@ -34,6 +34,15 @@ public class Order {
     @Column(name = "total_amount", nullable = false)
     private BigDecimal totalAmount;
 
+    /** Số tiền được giảm từ voucher (0 nếu không dùng). */
+    @Column(name = "discount_amount", nullable = false)
+    @Builder.Default
+    private BigDecimal discountAmount = BigDecimal.ZERO;
+
+    /** Mã voucher đã áp dụng (null nếu không có). */
+    @Column(name = "voucher_code", length = 64)
+    private String voucherCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

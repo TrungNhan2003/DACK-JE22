@@ -75,7 +75,7 @@ public class SecurityConfig {
                     "/images/**"
                 ).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/cart/**", "/checkout/**", "/account/**", "/profile/**", "/order-history/**").authenticated()
+                .requestMatchers("/cart/**", "/checkout/**", "/account/**", "/profile/**", "/order-history/**", "/chat/**").authenticated()
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form

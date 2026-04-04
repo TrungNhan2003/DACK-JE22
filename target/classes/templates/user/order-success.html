@@ -23,8 +23,19 @@
                                 <th width="40%">Mã đơn hàng:</th>
                                 <td class="fw-bold" th:text="'#' + ${order.id}">#1</td>
                             </tr>
+                            <tr th:if="${order.discountAmount != null and order.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                                <th>Mã giảm giá:</th>
+                                <td class="fw-bold" th:text="${order.voucherCode != null ? order.voucherCode : '—'}">sale4.4</td>
+                            </tr>
+                            <tr th:if="${order.discountAmount != null and order.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                                <th>Đã giảm:</th>
+                                <td class="text-success fw-bold"
+                                    th:text="'-' + ${#numbers.formatDecimal(order.discountAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                    0 ₫
+                                </td>
+                            </tr>
                             <tr>
-                                <th>Tổng tiền:</th>
+                                <th>Tổng thanh toán:</th>
                                 <td class="text-danger fw-bold"
                                     th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
                                     0 ₫
