@@ -3,7 +3,6 @@ package com.fashionshop.service;
 import com.fashionshop.entity.CartItem;
 import com.fashionshop.entity.Product;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,10 +11,13 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
 
     private final HttpSession session;
+
+    public CartServiceImpl(HttpSession session) {
+        this.session = session;
+    }
 
     @SuppressWarnings("unchecked")
     private ConcurrentHashMap<Long, CartItem> getCartMap() {
@@ -78,11 +80,10 @@ public class CartServiceImpl implements CartService {
             }
 
             BigDecimal price = product.getSalePrice() != null ? product.getSalePrice() : product.getPrice();
-            item = CartItem.builder()
-                    .product(product)
-                    .quantity(quantity)
-                    .price(price)
-                    .build();
+            item = new CartItem();
+            item.setProduct(product);
+            item.setQuantity(quantity);
+            item.setPrice(price);
             cartMap.put(product.getId(), item);
         }
 

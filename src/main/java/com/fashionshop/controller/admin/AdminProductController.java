@@ -4,7 +4,6 @@ import com.fashionshop.dto.ProductDTO;
 import com.fashionshop.entity.Product;
 import com.fashionshop.service.CategoryService;
 import com.fashionshop.service.ProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,12 +23,16 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/admin/products")
 public class AdminProductController {
 
     private final ProductService productService;
     private final CategoryService categoryService;
+
+    public AdminProductController(ProductService productService, CategoryService categoryService) {
+        this.productService = productService;
+        this.categoryService = categoryService;
+    }
 
     @Value("${file.upload-dir}")
     private String uploadDir;

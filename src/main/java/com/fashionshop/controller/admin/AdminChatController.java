@@ -3,7 +3,6 @@ package com.fashionshop.controller.admin;
 import com.fashionshop.dto.ChatConversationRow;
 import com.fashionshop.dto.ChatMessageJson;
 import com.fashionshop.service.ChatService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -19,10 +18,13 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/admin/chat")
-@RequiredArgsConstructor
 public class AdminChatController {
 
     private final ChatService chatService;
+
+    public AdminChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
 
     @GetMapping
     public String list(Model model) {

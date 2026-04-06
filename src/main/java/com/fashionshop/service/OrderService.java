@@ -26,4 +26,6 @@ public interface OrderService {
     BigDecimal revenueThisMonth();
 
     List<Order> findTop10Latest();
+
+    Order save(Order order);
 }

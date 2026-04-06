@@ -3,7 +3,6 @@ package com.fashionshop.service;
 import com.fashionshop.dto.VoucherPreviewResponse;
 import com.fashionshop.entity.Voucher;
 import com.fashionshop.repository.VoucherRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,12 +11,15 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class VoucherServiceImpl implements VoucherService {
 
     private static final BigDecimal ONE_HUNDRED = new BigDecimal("100");
 
     private final VoucherRepository voucherRepository;
+
+    public VoucherServiceImpl(VoucherRepository voucherRepository) {
+        this.voucherRepository = voucherRepository;
+    }
 
     private static BigDecimal computeDiscount(Voucher v, BigDecimal subtotal) {
         if (subtotal == null || subtotal.signum() <= 0) {

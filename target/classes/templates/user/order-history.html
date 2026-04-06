@@ -45,6 +45,14 @@
                                   th:if="${order.status != null and order.status.name() == 'PENDING'}">
                                 Chờ xử lý
                             </span>
+                            <span class="badge bg-secondary"
+                                  th:if="${order.status != null and order.status.name() == 'PENDING_PAYMENT'}">
+                                Chờ thanh toán
+                            </span>
+                            <span class="badge bg-success"
+                                  th:if="${order.status != null and order.status.name() == 'PAID'}">
+                                Đã thanh toán
+                            </span>
                             <span class="badge bg-info text-dark"
                                   th:if="${order.status != null and order.status.name() == 'CONFIRMED'}">
                                 Đã xác nhận

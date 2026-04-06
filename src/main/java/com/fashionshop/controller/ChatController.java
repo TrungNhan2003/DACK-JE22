@@ -2,7 +2,6 @@ package com.fashionshop.controller;
 
 import com.fashionshop.dto.ChatMessageJson;
 import com.fashionshop.service.ChatService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,10 +15,13 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/chat")
-@RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
+
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
 
     private static boolean isAdmin(Authentication authentication) {
         if (authentication == null) {

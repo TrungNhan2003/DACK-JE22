@@ -2,7 +2,6 @@ package com.fashionshop.controller;
 
 import com.fashionshop.entity.Order;
 import com.fashionshop.service.OrderService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,11 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/order-history")
 public class OrderHistoryController {
 
     private final OrderService orderService;
+
+    public OrderHistoryController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping
     public String orderHistory(Authentication authentication, Model model) {

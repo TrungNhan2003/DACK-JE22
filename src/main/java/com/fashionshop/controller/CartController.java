@@ -3,7 +3,6 @@ package com.fashionshop.controller;
 import com.fashionshop.entity.Product;
 import com.fashionshop.service.CartService;
 import com.fashionshop.service.ProductService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +14,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/cart")
 public class CartController {
 
     private final CartService cartService;
     private final ProductService productService;
+
+    public CartController(CartService cartService, ProductService productService) {
+        this.cartService = cartService;
+        this.productService = productService;
+    }
 
     @GetMapping
     public String viewCart(Model model) {

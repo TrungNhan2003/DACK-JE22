@@ -5,7 +5,6 @@ import com.fashionshop.entity.Category;
 import com.fashionshop.entity.Product;
 import com.fashionshop.repository.CategoryRepository;
 import com.fashionshop.repository.ProductRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,11 +14,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+    }
 
     @Override
     public List<Product> findFeaturedProducts(int limit) {
@@ -84,16 +87,15 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục"));
 
-        Product product = Product.builder()
-                .name(dto.getName())
-                .slug(generateSlug(dto.getName()))
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .salePrice(dto.getDiscountPrice())
-                .stock(dto.getStock())
-                .imageUrl(dto.getImage())
-                .category(category)
-                .build();
+        Product product = new Product();
+        product.setName(dto.getName());
+        product.setSlug(generateSlug(dto.getName()));
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setSalePrice(dto.getDiscountPrice());
+        product.setStock(dto.getStock());
+        product.setImageUrl(dto.getImage());
+        product.setCategory(category);
 
         return productRepository.save(product);
     }

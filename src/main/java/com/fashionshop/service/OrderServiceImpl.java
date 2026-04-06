@@ -10,7 +10,6 @@ import com.fashionshop.repository.OrderItemRepository;
 import com.fashionshop.repository.OrderRepository;
 import com.fashionshop.repository.ProductRepository;
 import com.fashionshop.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
@@ -29,6 +27,20 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final VoucherService voucherService;
     private final ProductRepository productRepository;
+
+    public OrderServiceImpl(OrderRepository orderRepository,
+                            UserRepository userRepository,
+                            CartService cartService,
+                            OrderItemRepository orderItemRepository,
+                            VoucherService voucherService,
+                            ProductRepository productRepository) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.cartService = cartService;
+        this.orderItemRepository = orderItemRepository;
+        this.voucherService = voucherService;
+        this.productRepository = productRepository;
+    }
 
     @Override
     @Transactional
@@ -82,17 +94,21 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        Order order = Order.builder()
-                .user(user)
-                .fullName(dto.getFullName())
-                .phone(dto.getPhone())
-                .address(dto.getAddress())
-                .totalAmount(totalAmount)
-                .discountAmount(discount)
-                .voucherCode(voucherResult.normalizedCode())
-                .status(Order.OrderStatus.PENDING)
-                .paymentMethod(paymentMethod)
-                .build();
+        // Set status based on payment method
+        Order.OrderStatus initialStatus = paymentMethod == Order.PaymentMethod.MOMO
+                ? Order.OrderStatus.PENDING_PAYMENT
+                : Order.OrderStatus.PENDING;
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setFullName(dto.getFullName());
+        order.setPhone(dto.getPhone());
+        order.setAddress(dto.getAddress());
+        order.setTotalAmount(totalAmount);
+        order.setDiscountAmount(discount);
+        order.setVoucherCode(voucherResult.normalizedCode());
+        order.setStatus(initialStatus);
+        order.setPaymentMethod(paymentMethod);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -108,14 +124,14 @@ public class OrderServiceImpl implements OrderService {
             product.setStock(currentStock - buyQty);
             productRepository.save(product);
 
-            return OrderItem.builder()
-                    .order(savedOrder)
-                    .product(product)
-                    .quantity(buyQty)
-                    .price(cartItem.getPrice())
-                    .size(cartItem.getSize())
-                    .color(cartItem.getColor())
-                    .build();
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(savedOrder);
+            orderItem.setProduct(product);
+            orderItem.setQuantity(buyQty);
+            orderItem.setPrice(cartItem.getPrice());
+            orderItem.setSize(cartItem.getSize());
+            orderItem.setColor(cartItem.getColor());
+            return orderItem;
         }).toList();
 
         orderItemRepository.saveAll(orderItems);
@@ -167,5 +183,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> findTop10Latest() {
         return orderRepository.findTop10ByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    @Transactional
+    public Order save(Order order) {
+        return orderRepository.save(order);
     }
 }

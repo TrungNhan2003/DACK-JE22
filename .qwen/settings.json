@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn *)",
+      "Bash(ls *)",
+      "Bash(java *)",
+      "Bash(git log *)",
+      "Bash(git stash)",
+      "Bash(git checkout *)",
+      "Bash(/usr/libexec/java_home *)",
+      "Bash(lsof *)",
+      "Bash(find *)",
+      "Bash(do *)",
+      "Bash(done)",
+      "Bash(rm *)"
+    ]
+  },
+  "$version": 3
+}

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- HEADER FRAGMENT - Dùng chung cho tất cả các trang user -->
+<nav th:fragment="header" class="navbar navbar-expand-lg navbar-dark fashion-navbar sticky-top">
+    <div class="container">
+
+        <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/}">
+            <span class="brand-pill">
+                <i class="fas fa-tshirt"></i>
+            </span>
+            <span>Fashion Shop</span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <!-- MENU -->
+            <ul class="navbar-nav me-auto mb-3 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/products}">Sản phẩm</a>
+                </li>
+
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/dashboard}">
+                        <i class="fas fa-user-shield"></i> Admin
+                    </a>
+                </li>
+            </ul>
+
+            <!-- SEARCH -->
+            <form class="d-flex me-3" th:action="@{/search}" method="get">
+                <input class="form-control me-2" type="search"
+                       name="keyword" placeholder="Tìm kiếm áo, quần...">
+                <button class="btn btn-light">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <!-- ICON -->
+            <ul class="navbar-nav align-items-center">
+
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/cart}">
+                        <i class="fas fa-shopping-cart"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <a class="nav-link" th:href="@{/account}">
+                        <i class="fas fa-user"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="!isAuthenticated()">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </a>
+                </li>
+
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post">
+                        <input type="hidden"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}"/>
+                        <button class="btn btn-link nav-link text-white">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </li>
+
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+</html>

@@ -4,7 +4,6 @@ import com.fashionshop.dto.VoucherFormDTO;
 import com.fashionshop.entity.Voucher;
 import com.fashionshop.repository.VoucherRepository;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,10 +15,13 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/vouchers")
-@RequiredArgsConstructor
 public class AdminVoucherController {
 
     private final VoucherRepository voucherRepository;
+
+    public AdminVoucherController(VoucherRepository voucherRepository) {
+        this.voucherRepository = voucherRepository;
+    }
 
     @GetMapping
     public String list(Model model) {
@@ -69,13 +71,12 @@ public class AdminVoucherController {
         }
 
         if (dto.getId() == null) {
-            Voucher v = Voucher.builder()
-                    .code(code)
-                    .discountType(dto.getDiscountType())
-                    .discountValue(dto.getDiscountValue())
-                    .active(dto.isActive())
-                    .description(dto.getDescription() != null ? dto.getDescription().trim() : null)
-                    .build();
+            Voucher v = new Voucher();
+            v.setCode(code);
+            v.setDiscountType(dto.getDiscountType());
+            v.setDiscountValue(dto.getDiscountValue());
+            v.setActive(dto.isActive());
+            v.setDescription(dto.getDescription() != null ? dto.getDescription().trim() : null);
             voucherRepository.save(v);
             redirectAttributes.addFlashAttribute("success", "Đã tạo mã giảm giá: " + code);
         } else {

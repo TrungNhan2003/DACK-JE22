@@ -8,7 +8,6 @@ import com.fashionshop.entity.User;
 import com.fashionshop.repository.ChatConversationRepository;
 import com.fashionshop.repository.ChatMessageRepository;
 import com.fashionshop.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
     private static final int MAX_CONTENT = 2000;
@@ -26,6 +24,14 @@ public class ChatServiceImpl implements ChatService {
     private final ChatConversationRepository conversationRepository;
     private final ChatMessageRepository messageRepository;
     private final UserRepository userRepository;
+
+    public ChatServiceImpl(ChatConversationRepository conversationRepository,
+                           ChatMessageRepository messageRepository,
+                           UserRepository userRepository) {
+        this.conversationRepository = conversationRepository;
+        this.messageRepository = messageRepository;
+        this.userRepository = userRepository;
+    }
 
     private static String trimContent(String content) {
         if (content == null) {
@@ -75,10 +81,9 @@ public class ChatServiceImpl implements ChatService {
 
     private ChatConversation getOrCreateConversation(User user) {
         return conversationRepository.findByUserId(user.getId()).orElseGet(() -> {
-            ChatConversation c = ChatConversation.builder()
-                    .user(user)
-                    .lastMessageAt(LocalDateTime.now())
-                    .build();
+            ChatConversation c = new ChatConversation();
+            c.setUser(user);
+            c.setLastMessageAt(LocalDateTime.now());
             return conversationRepository.save(c);
         });
     }
@@ -95,11 +100,10 @@ public class ChatServiceImpl implements ChatService {
             return;
         }
         ChatConversation conv = getOrCreateConversation(user);
-        ChatMessage msg = ChatMessage.builder()
-                .conversation(conv)
-                .author(user)
-                .content(body)
-                .build();
+        ChatMessage msg = new ChatMessage();
+        msg.setConversation(conv);
+        msg.setAuthor(user);
+        msg.setContent(body);
         messageRepository.save(msg);
         conv.setLastMessageAt(LocalDateTime.now());
         conversationRepository.save(conv);
@@ -117,11 +121,10 @@ public class ChatServiceImpl implements ChatService {
             return;
         }
         ChatConversation conv = conversationRepository.findById(conversationId).orElseThrow();
-        ChatMessage msg = ChatMessage.builder()
-                .conversation(conv)
-                .author(admin)
-                .content(body)
-                .build();
+        ChatMessage msg = new ChatMessage();
+        msg.setConversation(conv);
+        msg.setAuthor(admin);
+        msg.setContent(body);
         messageRepository.save(msg);
         conv.setLastMessageAt(LocalDateTime.now());
         conversationRepository.save(conv);

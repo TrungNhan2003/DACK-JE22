@@ -61,6 +61,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/checkout/zalopay-callback")
+            )
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
@@ -72,7 +75,9 @@ public class SecurityConfig {
                     "/css/**",
                     "/js/**",
                     "/uploads/**",
-                    "/images/**"
+                    "/images/**",
+                    "/checkout/zalopay-callback",
+                    "/checkout/zalopay-return"
                 ).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/cart/**", "/checkout/**", "/account/**", "/profile/**", "/order-history/**", "/chat/**").authenticated()

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/base}">
+<head>
+    <title>Quét mã MoMo - Fashion Shop</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow text-center">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-qrcode"></i> Quét mã ZaloPay
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i>
+                        Hãy quét mã QR bên dưới bằng ứng dụng ZaloPay để thanh toán
+                    </div>
+
+                    <div class="mb-4 p-3 bg-light rounded">
+                        <strong>Đơn hàng #<span th:text="${order.id}">1</span></strong><br>
+                        <span class="text-danger fw-bold fs-4" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>
+                    </div>
+
+                    <!-- QR CODE -->
+                    <div class="mb-4">
+                        <img id="qr-code-img" th:src="${qrCodeUrl}" alt="MoMo QR Code" 
+                             class="img-fluid border rounded p-2"
+                             style="max-width: 300px;"
+                             onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block';">
+                        <div id="qr-fallback" class="d-none">
+                            <p class="text-muted">Không thể hiển thị QR code</p>
+                            <a th:if="${payUrl != null}" th:href="${payUrl}" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt"></i> Mở trang thanh toán MoMo
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- STATUS INDICATOR -->
+                    <div id="payment-status" class="mb-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang chờ...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang chờ thanh toán...</p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/order-history}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> Xem lịch sử đơn hàng
+                        </a>
+                        <a th:href="@{/checkout}" class="btn btn-outline-warning">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-polling script to check payment status -->
+    <script th:inline="javascript">
+        (function () {
+            const orderId = /*[[${order.id}]]*/ 0;
+            const checkUrl = /*[[@{/checkout/api/check-payment/}]]*/ '/checkout/api/check-payment/';
+            const successUrl = /*[[@{/order-history}]]*/ '/order-history';
+
+            let attempts = 0;
+            const maxAttempts = 60; // 5 minutes (polling every 5 seconds)
+            const interval = 5000; // 5 seconds
+
+            async function checkPaymentStatus() {
+                if (attempts >= maxAttempts) {
+                    document.getElementById('payment-status').innerHTML =
+                        '<div class="alert alert-warning">' +
+                        '<i class="fas fa-clock"></i> Không nhận được phản hồi thanh toán. ' +
+                        'Vui lòng kiểm tra trạng thái đơn hàng trong <a href="' + successUrl + '">Lịch sử đơn hàng</a>.' +
+                        '</div>';
+                    clearInterval(timer);
+                    return;
+                }
+
+                try {
+                    const res = await fetch(checkUrl + orderId, {credentials: 'same-origin'});
+                    const data = await res.json();
+
+                    if (data.status === 'PAID' || data.status === 'CONFIRMED') {
+                        clearInterval(timer);
+                        document.getElementById('payment-status').innerHTML =
+                            '<div class="alert alert-success">' +
+                            '<i class="fas fa-check-circle"></i> Thanh toán thành công! ' +
+                            'Đang chuyển đến trang đơn hàng...' +
+                            '</div>';
+                        setTimeout(() => {
+                            window.location.href = successUrl;
+                        }, 1500);
+                    } else if (data.status === 'CANCELLED') {
+                        clearInterval(timer);
+                        document.getElementById('payment-status').innerHTML =
+                            '<div class="alert alert-danger">' +
+                            '<i class="fas fa-times-circle"></i> Đơn hàng đã bị hủy.' +
+                            '</div>';
+                    }
+                } catch (e) {
+                    // Ignore network errors
+                }
+                attempts++;
+            }
+
+            const timer = setInterval(checkPaymentStatus, interval);
+            // First check after 2 seconds
+            setTimeout(checkPaymentStatus, 2000);
+        })();
+    </script>
+</div>
+</body>
+</html>

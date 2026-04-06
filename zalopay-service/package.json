@@ -1,0 +1,13 @@
+{
+  "name": "zalopay-service",
+  "version": "1.0.0",
+  "description": "ZaloPay payment service for Fashion Shop",
+  "main": "zalopay.js",
+  "scripts": {
+    "test": "node zalopay-test.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

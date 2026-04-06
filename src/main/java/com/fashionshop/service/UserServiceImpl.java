@@ -4,7 +4,6 @@ import com.fashionshop.dto.AccountUpdateDTO;
 import com.fashionshop.dto.RegisterDTO;
 import com.fashionshop.entity.User;
 import com.fashionshop.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,23 +11,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
     @Transactional
     public User register(RegisterDTO dto) {
-        User user = User.builder()
-                .fullName(dto.getFullName())
-                .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword()))
-                .phone(dto.getPhone())
-                .role(User.Role.ROLE_USER)
-                .enabled(true)
-                .build();
+        User user = new User();
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setPhone(dto.getPhone());
+        user.setRole(User.Role.ROLE_USER);
+        user.setEnabled(true);
         return userRepository.save(user);
     }
 
