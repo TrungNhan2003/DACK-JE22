@@ -311,28 +311,28 @@ public class CheckoutController {
                 }
             }
 
-            if ("1".equals(type) && orderId != null) {
-                // Update order status to PAID
+            if (orderId != null) {
+                // Check if already PAID (idempotency — prevent double-processing)
                 final Long finalOrderId = orderId;
                 orderService.findById(finalOrderId).ifPresent(order -> {
-                    order.setStatus(Order.OrderStatus.PAID);
-                    orderService.save(order);
-                    log.info("✅ Order {} marked as PAID via ZaloPay callback", finalOrderId);
-                });
-                response.put("return_code", 1);
-                response.put("return_message", "success");
-            } else {
-                log.warn("ZaloPay payment failed or canceled. type={}, orderId={}", type, orderId);
-                if (orderId != null) {
-                    final Long finalOrderId = orderId;
-                    orderService.findById(finalOrderId).ifPresent(order -> {
-                        order.setStatus(Order.OrderStatus.CANCELLED);
+                    if (order.getStatus() == Order.OrderStatus.PAID) {
+                        log.info("⚠️ Order {} already PAID. Skipping callback.", finalOrderId);
+                    } else if ("1".equals(type)) {
+                        order.setStatus(Order.OrderStatus.PAID);
                         orderService.save(order);
-                        log.info("❌ Order {} marked as CANCELLED", finalOrderId);
-                    });
-                }
-                response.put("return_code", 0);
-                response.put("return_message", "Payment failed");
+                        log.info("✅ Order {} marked as PAID via ZaloPay callback", finalOrderId);
+                    } else {
+                        // DON'T auto-cancel — keep PENDING_PAYMENT, let admin handle
+                        log.warn("⚠️ ZaloPay callback type={} for order {}. Keeping status as-is.",
+                                type, finalOrderId);
+                    }
+                });
+                response.put("return_code", "1".equals(type) ? 1 : 0);
+                response.put("return_message", "1".equals(type) ? "success" : "Payment not successful");
+            } else {
+                log.error("❌ Cannot find orderId in callback. Cannot update order.");
+                response.put("return_code", -1);
+                response.put("return_message", "Missing orderId");
             }
         } catch (Exception e) {
             log.error("ZaloPay callback processing failed", e);
@@ -355,6 +355,31 @@ public class CheckoutController {
         }, () -> {
             result.put("orderId", orderId);
             result.put("status", "NOT_FOUND");
+        });
+        return result;
+    }
+
+    // ===================================
+    // API: Auto-cancel order when QR expires
+    // ===================================
+    @PostMapping(value = "/api/cancel-expired/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public Map<String, Object> cancelExpiredOrder(@PathVariable Long orderId) {
+        Map<String, Object> result = new HashMap<>();
+        orderService.findById(orderId).ifPresent(order -> {
+            if (order.getStatus() == Order.OrderStatus.PENDING_PAYMENT) {
+                order.setStatus(Order.OrderStatus.CANCELLED);
+                orderService.save(order);
+                log.info("⏰ Order {} auto-cancelled due to QR expiry", orderId);
+                result.put("success", true);
+                result.put("status", "CANCELLED");
+            } else {
+                // Already PAID or changed — don't cancel
+                log.info("⚠️ Order {} status is {}, skipping cancel", orderId, order.getStatus());
+                result.put("success", false);
+                result.put("status", order.getStatus().name());
+                result.put("message", "Order already processed");
+            }
         });
         return result;
     }

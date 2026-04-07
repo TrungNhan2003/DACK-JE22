@@ -84,6 +84,8 @@
                                 <label class="form-label">Trạng thái hiện tại</label>
                                 <select name="status" class="form-select">
                                     <option value="PENDING" th:selected="${order.status.name == 'PENDING'}">Chờ xử lý</option>
+                                    <option value="PENDING_PAYMENT" th:selected="${order.status.name == 'PENDING_PAYMENT'}">Chờ thanh toán</option>
+                                    <option value="PAID" th:selected="${order.status.name == 'PAID'}">Đã thanh toán</option>
                                     <option value="CONFIRMED" th:selected="${order.status.name == 'CONFIRMED'}">Đã xác nhận</option>
                                     <option value="SHIPPING" th:selected="${order.status.name == 'SHIPPING'}">Đang giao</option>
                                     <option value="DONE" th:selected="${order.status.name == 'DONE'}">Hoàn thành</option>
@@ -121,7 +123,7 @@
                             <i class="fas fa-wallet"></i> 
                             <strong>Thanh toán:</strong> 
                             <span th:text="${order.paymentMethod.name == 'COD' ? 'Thanh toán khi nhận hàng' : 
-                                           (order.paymentMethod.name == 'BANK_TRANSFER' ? 'Chuyển khoản' : 'Ví MoMo')}">
+                                           (order.paymentMethod.name == 'BANK_TRANSFER' ? 'Chuyển khoản' : 'ZaloPay')}">
                                 Payment
                             </span>
                         </p>

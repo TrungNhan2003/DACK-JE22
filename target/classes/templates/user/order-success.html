@@ -57,7 +57,7 @@
                                         Chuyển khoản ngân hàng
                                     </span>
                                     <span th:if="${order.paymentMethod != null and order.paymentMethod.name == 'MOMO'}">
-                                        Ví MoMo
+                                        ZaloPay
                                     </span>
                                 </td>
                             </tr>
@@ -77,12 +77,12 @@
                 </div>
 
                 <div class="alert alert-warning text-start" th:if="${order != null and order.paymentMethod != null and order.paymentMethod.name == 'MOMO'}">
-                    <h6 class="mb-2"><i class="fas fa-wallet"></i> Hướng dẫn thanh toán qua MoMo</h6>
+                    <h6 class="mb-2"><i class="fas fa-wallet"></i> Hướng dẫn thanh toán qua ZaloPay</h6>
                     <ul class="mb-0 small">
-                        <li>Mở ứng dụng MoMo trên điện thoại của bạn.</li>
-                        <li>Chọn <strong>Chuyển tiền</strong> và nhập số điện thoại MoMo nhận: <strong>(bạn điền số MoMo của bạn)</strong>.</li>
-                        <li>Số tiền: <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</span>.</li>
-                        <li>Nội dung: <span th:text="'Thanh toan don hang #' + ${order.id}">Thanh toan don hang #1</span>.</li>
+                        <li>Mở ứng dụng ZaloPay trên điện thoại.</li>
+                        <li>Quét mã QR được hiển thị trên trang thanh toán.</li>
+                        <li>Xác nhận thanh toán trên ZaloPay.</li>
+                        <li>Trạng thái đơn hàng sẽ được cập nhật tự động.</li>
                     </ul>
                 </div>
 

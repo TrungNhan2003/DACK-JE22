@@ -38,14 +38,18 @@
                                 <td th:text="${#temporals.format(order.createdAt, 'HH:mm dd/MM/yyyy')}">01/01/2026</td>
                                 <td>
                                     <span class="badge"
-                                          th:classappend="${order.status.name == 'DONE'} ? 'bg-success' : 
-                                                           (${order.status.name == 'CANCELLED'} ? 'bg-danger' : 
-                                                           (${order.status.name == 'PENDING'} ? 'bg-warning' : 
-                                                           (${order.status.name == 'CONFIRMED'} ? 'bg-info' : 'bg-primary')))"
-                                          th:text="${order.status.name == 'PENDING' ? 'Chờ xử lý' : 
-                                                   (order.status.name == 'CONFIRMED' ? 'Đã xác nhận' : 
-                                                   (order.status.name == 'SHIPPING' ? 'Đang giao' : 
-                                                   (order.status.name == 'DONE' ? 'Hoàn thành' : 'Đã hủy')))}">
+                                          th:classappend="${order.status.name == 'PAID'} ? 'bg-success' :
+                                                           (${order.status.name == 'PENDING_PAYMENT'} ? 'bg-warning' :
+                                                           (${order.status.name == 'DONE'} ? 'bg-success' :
+                                                           (${order.status.name == 'CANCELLED'} ? 'bg-danger' :
+                                                           (${order.status.name == 'PENDING'} ? 'bg-warning' :
+                                                           (${order.status.name == 'CONFIRMED'} ? 'bg-info' : 'bg-primary')))))"
+                                          th:text="${order.status.name == 'PAID' ? 'Đã thanh toán' :
+                                                   (order.status.name == 'PENDING_PAYMENT' ? 'Chờ thanh toán' :
+                                                   (order.status.name == 'PENDING' ? 'Chờ xử lý' :
+                                                   (order.status.name == 'CONFIRMED' ? 'Đã xác nhận' :
+                                                   (order.status.name == 'SHIPPING' ? 'Đang giao' :
+                                                   (order.status.name == 'DONE' ? 'Hoàn thành' : 'Đã hủy')))))}">
                                         Status
                                     </span>
                                 </td>

@@ -3,7 +3,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout/base}">
 <head>
-    <title>Quét mã MoMo - Fashion Shop</title>
+    <title>Quét mã ZaloPay - Fashion Shop</title>
 </head>
 <body>
 <div layout:fragment="content">
@@ -28,14 +28,14 @@
 
                     <!-- QR CODE -->
                     <div class="mb-4">
-                        <img id="qr-code-img" th:src="${qrCodeUrl}" alt="MoMo QR Code" 
+                        <img id="qr-code-img" th:src="${qrCodeUrl}" alt="ZaloPay QR Code" 
                              class="img-fluid border rounded p-2"
                              style="max-width: 300px;"
                              onerror="this.style.display='none'; document.getElementById('qr-fallback').style.display='block';">
                         <div id="qr-fallback" class="d-none">
                             <p class="text-muted">Không thể hiển thị QR code</p>
                             <a th:if="${payUrl != null}" th:href="${payUrl}" target="_blank" class="btn btn-primary">
-                                <i class="fas fa-external-link-alt"></i> Mở trang thanh toán MoMo
+                                <i class="fas fa-external-link-alt"></i> Mở trang thanh toán ZaloPay
                             </a>
                         </div>
                     </div>
@@ -46,6 +46,14 @@
                             <span class="visually-hidden">Đang chờ...</span>
                         </div>
                         <p class="mt-2 text-muted">Đang chờ thanh toán...</p>
+                    </div>
+
+                    <!-- COUNTDOWN TIMER -->
+                    <div id="countdown-timer" class="mb-3">
+                        <div class="alert alert-info py-2">
+                            <i class="fas fa-clock"></i>
+                            Mã QR sẽ hết hạn sau: <strong id="countdown-display">05:00</strong>
+                        </div>
                     </div>
 
                     <div class="d-grid gap-2">
@@ -67,6 +75,51 @@
             const orderId = /*[[${order.id}]]*/ 0;
             const checkUrl = /*[[@{/checkout/api/check-payment/}]]*/ '/checkout/api/check-payment/';
             const successUrl = /*[[@{/order-history}]]*/ '/order-history';
+
+            // ========================================
+            // COUNTDOWN TIMER (5 minutes)
+            // ========================================
+            const QR_EXPIRY_MINUTES = 5;
+            let timeLeft = QR_EXPIRY_MINUTES * 60; // seconds
+            const countdownDisplay = document.getElementById('countdown-display');
+            const countdownTimer = document.getElementById('countdown-timer');
+
+            const countdownInterval = setInterval(() => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                if (countdownDisplay) {
+                    countdownDisplay.textContent =
+                        String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    if (countdownTimer) {
+                        countdownTimer.innerHTML =
+                            '<div class="alert alert-danger py-2">' +
+                            '<i class="fas fa-exclamation-triangle"></i> ' +
+                            'Mã QR đã hết hạn. Vui lòng tạo đơn hàng mới.' +
+                            '</div>';
+                    }
+                    // Stop polling
+                    clearInterval(timer);
+                    // Auto-cancel order on backend
+                    cancelExpiredOrder();
+                }
+                timeLeft--;
+            }, 1000);
+
+            // ========================================
+            // AUTO-CANCEL ORDER
+            // ========================================
+            const cancelApi = /*[[@{/checkout/api/cancel-expired/}]]*/ '/checkout/api/cancel-expired/';
+            async function cancelExpiredOrder() {
+                try {
+                    await fetch(cancelApi + orderId, { method: 'POST', credentials: 'same-origin' });
+                } catch (e) {
+                    console.warn('Failed to cancel order on backend:', e);
+                }
+            }
 
             let attempts = 0;
             const maxAttempts = 60; // 5 minutes (polling every 5 seconds)
